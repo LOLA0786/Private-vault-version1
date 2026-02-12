@@ -1,3 +1,6 @@
+from tenant_registry import get_signing_key, get_provider_api_key
+from signature_verifier import verify_signature, canonical_json
+from replay_protection import check_replay
 from fastapi import FastAPI
 from pydantic import BaseModel
 import os
@@ -21,7 +24,13 @@ ledger = DecisionLedger()
 class EnforceRequest(BaseModel):
     action: dict
     principal: dict
+    nonce: str
+    timestamp: float
+    signature: str
     context: dict | None = None
+
+
+
 
 
 class GrokRequest(BaseModel):
@@ -39,6 +48,32 @@ class ModeRequest(BaseModel):
 
 @app.post("/enforce")
 def enforce(req: EnforceRequest):
+    # --- Signature Verification ---
+    tenant_id = req.principal.get("tenant_id", "default")
+    signing_key = get_signing_key(tenant_id)
+
+    if not signing_key:
+        return {"allowed": False, "layer": "auth", "reason": "Unregistered tenant"}
+
+    signed_payload = {
+        "action": req.action,
+        "principal": req.principal,
+        "nonce": req.nonce,
+        "timestamp": req.timestamp,
+        "context": req.context or {}
+    }
+
+    if not verify_signature(signing_key, signed_payload, req.signature):
+        return {"allowed": False, "layer": "signature_verification", "reason": "Invalid signature"}
+
+
+        return {"allowed": False, "layer": "signature_verification", "reason": "Invalid signature"}
+
+    # --- Replay Protection ---
+    tenant_id = req.principal.get("tenant_id", "default")
+    if not check_replay(tenant_id, req.nonce, req.timestamp):
+        return {"allowed": False, "layer": "replay_protection", "reason": "Replay or invalid timestamp"}
+
     return enforce_logic(
         action=req.action,
         principal=req.principal,

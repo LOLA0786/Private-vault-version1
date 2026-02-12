@@ -5,3 +5,19 @@ __pycache__/
 *.pem
 venv/
 *.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Runtime files
+*.jsonl
+tenant_registry.json
+request.json
+
+# Keys
+*.key
+*.pem
+
+# Env
+.env
