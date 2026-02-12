@@ -1,7 +1,10 @@
+from enterprise_governance_v1.registry import load_registry_bundle
+from enterprise_governance_v1.policy import load_policy_bundle
+
 from tenant_registry import get_signing_key, get_provider_api_key
 from signature_verifier import verify_signature, canonical_json
 from replay_protection import check_replay
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import os
 
@@ -14,6 +17,26 @@ from grok_gateway import call_grok_and_enforce
 # ==========================================
 
 app = FastAPI(title="PrivateVault AI Execution Firewall")
+
+from config import get_settings
+
+@app.on_event("startup")
+async def validate_environment():
+    settings = get_settings()
+    from services.api.governance.db import init_db
+    init_db()
+    if not settings.tenant_master_key:
+        raise RuntimeError("TENANT_MASTER_KEY not set")
+
+# --- Governance Layer Injection ---
+from services.api.routes import quorum, approvals, audit
+from services.api.governance.middleware import RoleTenantMiddleware
+
+app.add_middleware(RoleTenantMiddleware)
+app.include_router(quorum.router)
+app.include_router(approvals.router)
+app.include_router(audit.router)
+# --- End Governance Injection ---
 
 ledger = DecisionLedger()
 
@@ -98,7 +121,9 @@ def grok(req: GrokRequest):
 # ==========================================
 
 @app.post("/mode")
-def set_mode(req: ModeRequest):
+def set_mode(req: ModeRequest, request: Request):
+    from services.api.governance.governance_guard import assert_action_approved
+    assert_action_approved("mode_change", request)
     os.environ["FIREWALL_MODE"] = req.mode.lower()
     return {"mode": os.environ["FIREWALL_MODE"]}
 
@@ -129,4 +154,10 @@ def export_ledger():
         "events": ledger.events,
         "merkle_root": ledger.get_merkle_root()
     }
+
+
+@app.on_event("startup")
+def governance_startup():
+    load_registry_bundle("registry_bundle.json")
+    load_policy_bundle("policy_bundle.json")
 

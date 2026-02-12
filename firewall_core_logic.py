@@ -3,7 +3,9 @@ from policy_engine import authorize_intent
 from drift_detection import DriftDetector
 from decision_ledger import DecisionLedger
 
-FIREWALL_MODE = os.getenv("FIREWALL_MODE", "hybrid")
+def get_firewall_mode():
+    import os
+    return os.getenv("get_firewall_mode()", "hybrid")
 
 drift = DriftDetector(threshold=0.7)
 ledger = DecisionLedger()
@@ -37,7 +39,7 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
             "layer": "deterministic",
             "reason": policy.get("reason"),
             "tenant": tenant_id,
-            "mode": FIREWALL_MODE
+            "mode": get_firewall_mode()
         }
 
     # 2️⃣ Behavioral Drift
@@ -48,7 +50,7 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
 
     risk_score = compute_risk(policy, drift_result)
 
-    if FIREWALL_MODE == "strict" and drift_result.get("should_block"):
+    if get_firewall_mode() == "strict" and drift_result.get("should_block"):
         ledger.log_interaction("behavioral_block", {
             "tenant": tenant_id,
             "drift": drift_result
@@ -60,10 +62,10 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
             "reason": drift_result.get("reason"),
             "risk_score": risk_score,
             "tenant": tenant_id,
-            "mode": FIREWALL_MODE
+            "mode": get_firewall_mode()
         }
 
-    if FIREWALL_MODE == "hybrid" and risk_score > 0.7:
+    if get_firewall_mode() == "hybrid" and risk_score > 0.7:
         ledger.log_interaction("hybrid_block", {
             "tenant": tenant_id,
             "risk_score": risk_score
@@ -74,7 +76,7 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
             "layer": "risk_threshold",
             "risk_score": risk_score,
             "tenant": tenant_id,
-            "mode": FIREWALL_MODE
+            "mode": get_firewall_mode()
         }
 
     # 3️⃣ Approved
@@ -89,5 +91,5 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
         "layer": "approved",
         "risk_score": risk_score,
         "tenant": tenant_id,
-        "mode": FIREWALL_MODE
+        "mode": get_firewall_mode()
     }

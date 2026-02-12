@@ -5,12 +5,9 @@ from cryptography.fernet import Fernet
 
 REGISTRY_FILE = "tenant_registry.json"
 
-MASTER_KEY = os.getenv("TENANT_MASTER_KEY")
 
-if not MASTER_KEY:
-    raise RuntimeError("TENANT_MASTER_KEY not set")
 
-cipher = Fernet(MASTER_KEY.encode())
+# cipher initialized lazily
 
 
 def _load_registry() -> Dict:
@@ -32,7 +29,7 @@ def register_tenant(
 ):
     registry = _load_registry()
 
-    encrypted_provider_key = cipher.encrypt(
+    encrypted_provider_key = get_cipher().encrypt(
         provider_api_key.encode()
     ).decode()
 
@@ -62,4 +59,26 @@ def get_provider_api_key(tenant_id: str) -> Optional[str]:
     if not encrypted:
         return None
 
-    return cipher.decrypt(encrypted.encode()).decode()
+    return get_cipher().decrypt(encrypted.encode()).decode()
+
+from cryptography.fernet import Fernet
+from config import get_settings
+
+
+# ---- Lazy Crypto Initialization (Phase 1 Boot Refactor) ----
+
+from cryptography.fernet import Fernet
+from config import get_settings
+
+_cipher = None
+
+def get_cipher():
+    global _cipher
+    if _cipher is None:
+        settings = get_settings()
+        if not settings.tenant_master_key:
+            raise RuntimeError("TENANT_MASTER_KEY not set")
+        _cipher = Fernet(settings.tenant_master_key.strip().encode())
+    return _cipher
+
+# ---- End Lazy Crypto ----
