@@ -1,23 +1,14 @@
-__pycache__/
-*.pyc
-*.jsonl
-*.key
-*.pem
-venv/
-*.tmp
-
 # Python
 __pycache__/
 *.pyc
 
-# Runtime files
-*.jsonl
-tenant_registry.json
-request.json
+# Local DB
+governance.db
 
-# Keys
-*.key
-*.pem
+# Local security bundles
+registry_bundle.json
+policy_bundle.json
 
 # Env
 .env
+*.env
