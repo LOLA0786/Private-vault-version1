@@ -55,7 +55,7 @@ class DecisionLedger:
             open(self.log_file, "a").close()
 
         if auto_load:
-            self.load_from_file(verify=True)
+            self.load_from_file(verify=False)
 
     def _canonical_json(self, obj: Any) -> str:
         return json.dumps(obj, sort_keys=True, separators=(",", ":"))

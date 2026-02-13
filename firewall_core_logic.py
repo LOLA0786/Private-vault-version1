@@ -22,6 +22,8 @@ def compute_risk(policy_result, drift_result):
     return round(min(risk, 1.0), 3)
 
 def enforce_logic(action: dict, principal: dict, context: dict | None = None):
+    drift_score = context.get("drift_score", 0.0)
+
     context = context or {}
     tenant_id = principal.get("tenant_id", "default")
 
@@ -49,6 +51,11 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
     )
 
     risk_score = compute_risk(policy, drift_result)
+    drift_score = context.get("drift_score", 0.0)
+    if context.get("drift_score", 0.0) > 0.8:
+        risk_score = 0.95
+    drift_score = context.get("drift_score", 0.0)
+
 
     if get_firewall_mode() == "strict" and drift_result.get("should_block"):
         ledger.log_interaction("behavioral_block", {

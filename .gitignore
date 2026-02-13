@@ -1,14 +1,37 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
 
-# Local DB
+# Virtual environments
+venv/
+.env/
+.envrc
+
+# Ledger runtime files
+ai_firewall_ledger*.jsonl
+ledger_*.jsonl
+
+# Cryptographic keys
+ledger_private.key
+ledger_public.pem
+*.pem
+*.key
+
+# Databases
+*.db
 governance.db
 
-# Local security bundles
-registry_bundle.json
-policy_bundle.json
+# Temp / patch files
+*.tmp
+*.bak
+patch_*
 
-# Env
-.env
-*.env
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "issued_at": 1760000000,
+  "approvers": [
+    {
+      "id": "root-admin",
+      "role": "ROOT",
+      "public_key": "dummy-public-key",
+      "status": "active"
+    }
+  ],
+  "signature": "bootstrap-signature"
+}

@@ -1,0 +1,1 @@
+{"action": {"type": "read_db"}, "principal": {"tenant_id": "tenantA"}, "nonce": "4f300824-deae-4dc2-8170-2125f76bbb7a", "timestamp": 1770886086.562026, "context": {}, "signature": "e8150fe2768471e3a4b9cf5902ad298866dfebd06515b38ff7f9a5639955a3c1093e51daaaab733d3e2a06e638a9ffb540548a5d14094f2a9d2543b104db8f07"}

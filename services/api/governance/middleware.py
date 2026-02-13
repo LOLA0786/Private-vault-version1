@@ -10,6 +10,9 @@ EXEMPT_PATHS = {
 class RoleTenantMiddleware(BaseHTTPMiddleware):
 
     async def dispatch(self, request, call_next):
+        if request.url.path.startswith("/docs") or request.url.path.startswith("/openapi") or request.url.path.startswith("/redoc"):
+            return await call_next(request)
+
 
         # Allow public endpoints
         if request.url.path in EXEMPT_PATHS:
