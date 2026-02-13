@@ -220,3 +220,5 @@ if __name__ == "__main__":
         print(f"\nEvent {idx}:")
         print(f"  Score: {event['score']:.2f}")
         print(f"  Prompt: {event['prompt'][:60]}...")
+
+    # Backward compatibility

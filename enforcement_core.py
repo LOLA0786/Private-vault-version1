@@ -39,7 +39,7 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
     # -----------------------------
     # 3️⃣ Behavioral Drift Layer
     # -----------------------------
-    drift_result = drift.detect_drift(
+    drift_result = drift.detect(
         prompt=str(action),
         actions=[action]
     )
@@ -61,3 +61,21 @@ def enforce_logic(action: dict, principal: dict, context: dict | None = None):
         "allowed": True,
         "layer": "approved"
     }
+
+def enforce(request, principal=None):
+    """
+    Public enforcement entrypoint used by tests and API.
+    """
+    if principal is None:
+        principal = {"role": "system"}
+
+    action = {
+        "tool": request.get("tool", "llm_output"),
+        "prompt": request.get("prompt"),
+        "tenant": request.get("tenant"),
+        "llm_output": request.get("llm_output")
+    }
+
+    return enforce_logic(action, principal)
+
+

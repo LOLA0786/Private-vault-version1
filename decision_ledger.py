@@ -1,3 +1,4 @@
+from config import LEDGER_FILE
 from merkle import compute_merkle_root
 """
 Immutable Decision Log Ledger (v1)
@@ -31,6 +32,8 @@ def utc_now_iso() -> str:
 class DecisionLedger:
     """
     Ledger file format: JSONL (one JSON object per line)
+    def log_interaction(self, event_type, payload):
+        return self.log_event(event_type, payload)
 
     Each entry:
       {
@@ -44,7 +47,7 @@ class DecisionLedger:
     """
 
     def __init__(
-        self, log_file: str = "ai_firewall_ledger.jsonl", auto_load: bool = True
+        self, log_file: str = LEDGER_FILE, auto_load: bool = True
     ):
         self.log_file = log_file
         self.chain: List[Dict[str, Any]] = []
@@ -229,7 +232,7 @@ class DecisionLedger:
 # DEMO USAGE
 # ==================================================
 if __name__ == "__main__":
-    ledger = DecisionLedger(log_file="ai_firewall_ledger.jsonl", auto_load=True)
+    ledger = DecisionLedger(log_file=LEDGER_FILE, auto_load=True)
 
     print("\n" + "=" * 60)
     print("LOG EVENT 1: Input Filter (Allowed)")

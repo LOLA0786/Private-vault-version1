@@ -129,3 +129,13 @@ def generate_synthetic_data(n: int = 5) -> List[Dict[str, Any]]:
         )
 
     return out
+
+# Backward compatibility for tests
+
+def evaluate_policy(request):
+    """
+    Backward compatibility for tests.
+    """
+    action = request
+    decision = authorize_intent(action, principal={"role": "system"}, context={})
+    return decision

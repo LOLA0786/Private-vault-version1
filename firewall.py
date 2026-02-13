@@ -1,13 +1,15 @@
 from core.policy_engine import authorize_intent
 from core.drift_detection import DriftDetector
-from core.decision_ledger import DecisionLedger
+from decision_ledger import DecisionLedger
 from replay.replay_hash import compute_replay_hash
 
 drift = DriftDetector(threshold=0.70)
-ledger = DecisionLedger("firewall_ledger.json")
+ledger = DecisionLedger()
 
 
-def enforce(action, principal, context=None):
+def enforce(action, principal=None, context=None):
+    if principal is None:
+        principal = {"role": "system"}
 
     context = context or {}
 
@@ -22,7 +24,7 @@ def enforce(action, principal, context=None):
         }
 
     # 2️⃣ Drift Detection
-    drift_result = drift.detect_drift(
+    drift_result = drift.detect(
         prompt=str(action),
         actions=[action]
     )
@@ -32,7 +34,7 @@ def enforce(action, principal, context=None):
         return {
             "allowed": False,
             "layer": "drift",
-            "reason": drift_result["reason"]
+            "reason": drift_result.get("reason", "drift threshold exceeded")
         }
 
     # 3️⃣ Replay Hash
