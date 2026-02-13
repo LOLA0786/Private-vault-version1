@@ -35,3 +35,19 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Environment files
+.env
+
+# SQLite DB
+governance.db
+
+# Local JSON ledgers
+ledger_*.jsonl
+ai_firewall_ledger*.jsonl
+
+# Patch junk
+patch_*.tmp
+
+# Symlinked external modules (if replaced later)
+PrivateVault-Mega-Repo/
