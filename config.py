@@ -50,6 +50,7 @@ class Settings:
         self.PRIVATE_KEY_PATH = PRIVATE_KEY_PATH
         self.PUBLIC_KEY_PATH = PUBLIC_KEY_PATH
         self.GOVERNANCE_DB_PATH = GOVERNANCE_DB_PATH
+        self.tenant_master_key = os.getenv("TENANT_MASTER_KEY", "dev-master-key")
 
 def get_settings():
     return Settings()

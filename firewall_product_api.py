@@ -89,9 +89,7 @@ def enforce(req: EnforceRequest):
     if not verify_signature(signing_key, signed_payload, req.signature):
         return {"allowed": False, "layer": "signature_verification", "reason": "Invalid signature"}
 
-
         return {"allowed": False, "layer": "signature_verification", "reason": "Invalid signature"}
-
     # --- Replay Protection ---
     tenant_id = req.principal.get("tenant_id", "default")
     if not check_replay(tenant_id, req.nonce, req.timestamp):
